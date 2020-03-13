@@ -139,7 +139,7 @@ public class GameInt implements Runnable, ActionListener {
                 System.out.println("IO: " + e.getMessage());
             } finally {
                 if (s != null) {
-                    s.close(); //Cerramos para liberar recursos del serbiddor.
+                    s.close(); // Cerramos para liberar recursos del serbiddor.
                 }
                 if (stcp != null) {
                     try {

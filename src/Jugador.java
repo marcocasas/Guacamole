@@ -9,5 +9,19 @@
  * @author marco
  */
 public class Jugador {
+    private int id;
+    private int puntos;
+    private String nombre;
     
+    public Jugador(int i) {
+        id = i;
+    }
+    
+    public void sumaPuntos() {
+        puntos++;
+    }
+    
+    public int getId() {
+        return id;
+    }
 }

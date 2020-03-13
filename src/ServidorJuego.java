@@ -16,11 +16,35 @@ import java.util.logging.Logger;
  */
 public class ServidorJuego {
 
-    Jugador players[] = new Jugador[50]; // Arreglo de jugadores
+    Jugador players[]; // Arreglo de jugadores
     int posicionTopo;
+    int numeroJugadores;
+    
+    public ServidorJuego() {
+        numeroJugadores = 0;
+        players = new Jugador[10];
+    }
 
     public void setPosicionTopo(int i) {
         posicionTopo = i;
+    }
+    
+    public int getNumeroJugadores() {
+        return numeroJugadores;
+    }
+    
+    public void nuevoJugador(Jugador j) {
+        players[numeroJugadores] = j;
+        numeroJugadores++;
+    }
+    
+    public void obtenerListaJugadores() {
+        System.out.println("Están jugando:");
+        for(Jugador p : players) {
+            if (p != null) {
+                System.out.println("Jugador " + p.getId());
+            }
+        }
     }
 
     public static void main(String args[]) throws InterruptedException {
@@ -37,6 +61,10 @@ public class ServidorJuego {
                 System.out.println("Waiting for players...");
                 Socket clientSocket = listenSocket.accept();  // Listens for a connection to be made to this socket and accepts it. The method blocks until a connection is made. 
                 Connection c = new Connection(clientSocket, servJuego);
+                
+                servJuego.nuevoJugador(new Jugador(servJuego.getNumeroJugadores()));
+                servJuego.obtenerListaJugadores(); // Prueba para ver que se añagen jugadores.
+                
                 c.start();
             }
             
@@ -125,13 +153,16 @@ class Connection extends Thread {
     @Override
     public void run() {
         try {			                 // an echo server
-            String data;
-            while(true) {
+            String data = "START";
+            while(!data.equals("EXT")) {
                 data = in.readUTF();
                 System.out.println("Message received from: " + clientSocket.getRemoteSocketAddress());
                 System.out.println("Un jugador tiró: " + data);
                 out.writeUTF(data);
             }
+            
+            // Sacar al jugador del servidor.
+            
         } catch (EOFException e) {
             System.out.println("EOF:" + e.getMessage());
         } catch (IOException e) {
