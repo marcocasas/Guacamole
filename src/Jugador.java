@@ -50,4 +50,8 @@ public class Jugador {
     public String toString() {
         return nombre + " (Jugador " + id + ") con " + puntos + " pts";
     }
+    
+    public void reseteaPuntuacion() {
+        this.puntos = 0;
+    }
 }

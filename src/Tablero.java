@@ -16,7 +16,6 @@ import java.util.logging.Logger;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author marco
@@ -50,37 +49,44 @@ public class Tablero extends Thread {
             s = new MulticastSocket(6789); // Puerto en el que me estoy uniendo al grupo.
             s.joinGroup(group);
 
-            while (!sj.alguienYaGano()) {
-                prevPos = pos;
-                pos = new Random().nextInt(9);
-                sj.setPosicionTopo(pos);
-                sj.setPuntoDado(false);
-                System.out.println("Topo en " + pos);
+            while (true) {
+
+                while (!sj.alguienYaGano()) {
+                    prevPos = pos;
+                    pos = new Random().nextInt(9);
+                    sj.setPosicionTopo(pos);
+                    sj.setPuntoDado(false);
+                    System.out.println("Topo en " + pos);
+                    posiciones[prevPos] = 0;
+                    posiciones[pos] = 1;
+                    DatagramPacket messageOut
+                            = new DatagramPacket(posiciones, posiciones.length, group, 6789);
+                    s.send(messageOut);
+
+                    sj.setPosicionTopo(pos);
+
+                    Thread.sleep(sj.getSegundosEntreTopo());
+                    System.out.println("Va de nuez");
+                }
+
                 posiciones[prevPos] = 0;
-                posiciones[pos] = 1;
+                posiciones[9] = 1;
                 DatagramPacket messageOut
                         = new DatagramPacket(posiciones, posiciones.length, group, 6789);
                 s.send(messageOut);
+                System.out.println("¡Tenemos un(a) ganador(a)!");
 
-                sj.setPosicionTopo(pos);
+                System.out.println(sj.obtenerGanador());
 
-                Thread.sleep(sj.getSegundosEntreTopo());
-                System.out.println("Va de nuez");
+                byte[] fin = sj.obtenerGanador().getBytes();
+                messageOut = new DatagramPacket(fin, fin.length, group, 6789);
+                s.send(messageOut);
+                
+                sj.reiniciaTablero();
+                posiciones[9] = 0;
+
             }
-            
-            posiciones[prevPos] = 0;
-            posiciones[9] = 1;
-            DatagramPacket messageOut
-                    = new DatagramPacket(posiciones, posiciones.length, group, 6789);
-            s.send(messageOut);
-            System.out.println("¡Tenemos un(a) ganador(a)!");
 
-            System.out.println(sj.obtenerGanador());
-
-            byte [] fin = sj.obtenerGanador().getBytes();
-            messageOut = new DatagramPacket(fin, fin.length, group, 6789);
-            s.send(messageOut);
-            
         } catch (SocketException e) {
             System.out.println("Socket: " + e.getMessage());
         } catch (IOException e) {

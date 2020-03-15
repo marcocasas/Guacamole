@@ -17,9 +17,11 @@ import javax.swing.JPanel;
 
 public class GameInt implements Runnable, ActionListener {
 
+    boolean salir = false;
+
     int mcPort, tcpPort;
     String mcAddress, tcpAddress;
-    
+
     JDialog dialog = new JDialog();
     int number = 0;
     JLabel message = new JLabel();
@@ -36,12 +38,12 @@ public class GameInt implements Runnable, ActionListener {
     private DataInputStream in;
 
     public GameInt(String mca, int mcp, String tcpa, int tcpp) {
-        
+
         mcAddress = mca;
         mcPort = mcp;
         tcpAddress = tcpa;
         tcpPort = tcpp;
-        
+
         dialog.setLayout(new GridLayout(4, 1));
         pos0.addActionListener(this);
         pos1.addActionListener(this);
@@ -95,7 +97,7 @@ public class GameInt implements Runnable, ActionListener {
     public void run() {
         int prevPos = 0;
 
-        int serverPort = 7896; //puerto servidor TCP
+        int serverPort = tcpPort; //puerto servidor TCP
         Socket stcp = null; //socket tcp
 
         MulticastSocket s = null; //socket multicast
@@ -104,8 +106,8 @@ public class GameInt implements Runnable, ActionListener {
 
         while (runProcess) {
             try {
-                InetAddress group = InetAddress.getByName("228.28.6.13"); // destination multicast group; misma direccion que el sender
-                s = new MulticastSocket(6789);
+                InetAddress group = InetAddress.getByName(mcAddress); // destination multicast group; misma direccion que el sender
+                s = new MulticastSocket(mcPort);
                 s.joinGroup(group);
 
                 byte[] buffer = new byte[1000];
@@ -113,35 +115,44 @@ public class GameInt implements Runnable, ActionListener {
                 DatagramPacket messageIn
                         = new DatagramPacket(buffer, buffer.length);
 
-                stcp = new Socket("localhost", serverPort);
+                stcp = new Socket(tcpAddress, serverPort);
 
                 in = new DataInputStream(stcp.getInputStream());
                 this.out = new DataOutputStream(stcp.getOutputStream());
 
-                boolean juegoTerminado = false;
+                while (!salir) {
+                    System.out.println("¡Nuevo juego!");
+                    message.setText("¡Un nuevo juego ha comenzado!");
+                    boolean juegoTerminado = false;
 
-                while (!juegoTerminado) {
-                    s.receive(messageIn);
-
-                    posiciones[prevPos].setText("(   )");
-
-                    byte[] m = messageIn.getData();
-
-                    if (m[9] == 1) {
-                        juegoTerminado = true;
+                    while (!juegoTerminado) {
                         s.receive(messageIn);
-                        message.setText(new String(messageIn.getData()));
-                    } else {
-                        for (int i = 0; i < 9; i++) {
-                            if (m[i] == 1) {
-                                prevPos = i;
-                                posiciones[i].setText("ʕ•.•ʔ");
+
+                        posiciones[prevPos].setText("(   )");
+
+                        byte[] m = messageIn.getData();
+
+                        if (m[9] == 1) {
+                            juegoTerminado = true;
+                            s.receive(messageIn);
+                            message.setText(new String(messageIn.getData()));
+                            try {
+                                Thread.sleep(2000);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        } else {
+                            for (int i = 0; i < 9; i++) {
+                                if (m[i] == 1) {
+                                    prevPos = i;
+                                    posiciones[i].setText("ʕ•.•ʔ");
+                                }
                             }
                         }
                     }
-                }
 
-                System.out.println("Juego terminado");
+                    System.out.println("Juego terminado");
+                }
 
                 s.leaveGroup(group);
             } catch (SocketException e) {
@@ -150,7 +161,7 @@ public class GameInt implements Runnable, ActionListener {
                 System.out.println("IO: " + e.getMessage());
             } finally {
                 if (s != null) {
-                    s.close(); // Cerramos para liberar recursos del serbiddor.
+                    s.close(); // Cerramos para liberar recursos del servidor.
                 }
                 if (stcp != null) {
                     try {
@@ -377,7 +388,7 @@ public class GameInt implements Runnable, ActionListener {
         int mcp = 0;
         String tcpa = null;
         int tcpp = 0;
-        
+
         System.out.println("Escribe tu nombre para jugar:");
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String nombreJugador = null;
@@ -400,12 +411,12 @@ public class GameInt implements Runnable, ActionListener {
             //System.out.println("Received: " + data);
 
             String strArray[] = data.split("-");
-            
+
             mca = strArray[0];
             mcp = Integer.parseInt(strArray[1]);
             tcpa = strArray[2];
             tcpp = Integer.parseInt(strArray[3]);
-            
+
         } catch (UnknownHostException e) {
             System.out.println("Sock:" + e.getMessage());
         } catch (EOFException e) {
@@ -421,7 +432,7 @@ public class GameInt implements Runnable, ActionListener {
                 }
             }
         }
-        
+
         GameInt ean = new GameInt(mca, mcp, tcpa, tcpp);
     }
 }
