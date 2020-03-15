@@ -12,9 +12,21 @@ public class Jugador {
     private int id;
     private int puntos;
     private String nombre;
+    boolean active;
+    
+    public Jugador() {
+        active = true;
+    }
     
     public Jugador(int i) {
         id = i;
+        active = true;
+    }
+
+    public Jugador(int i, String nombre) {
+        id = i;
+        active = true;
+        this.nombre = nombre;
     }
     
     public void sumaPuntos() {
@@ -30,8 +42,12 @@ public class Jugador {
         return id;
     }
     
+    public String getNombre() {
+        return nombre;
+    }
+    
     @Override
     public String toString() {
-        return "Jugador " + id + " con " + puntos + " puntos";
+        return nombre + " (Jugador " + id + ") con " + puntos + " pts";
     }
 }

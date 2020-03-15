@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author
  */
 public class ServidorJuego {
 
@@ -64,7 +63,7 @@ public class ServidorJuego {
         System.out.println("Están jugando:");
         for(Jugador p : players) {
             if (p != null) {
-                System.out.println("Jugador " + p.getId());
+                System.out.println(p.getNombre() + ": Jugador " + p.getId());
             }
         }
     }
@@ -81,14 +80,28 @@ public class ServidorJuego {
         return r;
     }
     
+    public Jugador buscaJugador(String nombre) {
+        Jugador j = null;
+        int i = 0;
+        boolean encontrado = false;
+        
+        while(!encontrado && i < numeroJugadores && players[i] != null) {
+            if (players[i].getNombre().equals(nombre)){
+                encontrado = true;
+            }
+            i++;
+        }
+        return j;
+    }
+    
     public String obtenerGanador() {
         StringBuilder resp = new StringBuilder();
-        resp.append("¡Ganó el Jugador ");
+        resp.append("¡Ganó ");
         int i = 0;
         
         while(i < numeroJugadores && players[i] != null) {
             if(players[i].getPuntos() == puntosParaGanar) {
-                resp.append(i);
+                resp.append(players[i].getNombre());
             }
             i++;
         }
@@ -114,21 +127,30 @@ public class ServidorJuego {
         ServidorJuego servJuego = new ServidorJuego();
         Tablero t = new Tablero(servJuego);
         t.start(); // Hilo para enviar constantemente tableros cambiantes.
-
+        
         try {
-            int serverPort = 7896; // Puerto conexiones TCP
+            int serverPortRegister = 2806; // Puerto conexiones registro
+            int serverPort = 7896; // Puerto conexiones TCP para jugar
             ServerSocket listenSocket = new ServerSocket(serverPort);
+            ServerSocket listenSocketRegister = new ServerSocket(serverPortRegister);
             
             while (true) {
                 System.out.println("Waiting for players...");
+                
+                Socket registerSocket = listenSocketRegister.accept();
+                Registro reg = new Registro(registerSocket, servJuego);
+                reg.start();
+                
                 Socket clientSocket = listenSocket.accept();  // Listens for a connection to be made to this socket and accepts it. The method blocks until a connection is made. 
                 
-                //Instanciamos nuevo jugador
-                Jugador j = new Jugador(servJuego.getNumeroJugadores());
+                //Registrar a un jugador o crear uno nuevo
+                Jugador j = (reg.getJugadorRegistrado());
+                
+                System.out.println(j.toString());
                 
                 Connection c = new Connection(clientSocket, servJuego, j);
                 
-                servJuego.nuevoJugador(j);
+                //servJuego.nuevoJugador(j);
                 servJuego.obtenerListaJugadores(); // Prueba para ver que se añagen jugadores.
                 
                 c.start();

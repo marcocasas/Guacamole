@@ -17,6 +17,9 @@ import javax.swing.JPanel;
 
 public class GameInt implements Runnable, ActionListener {
 
+    int mcPort, tcpPort;
+    String mcAddress, tcpAddress;
+    
     JDialog dialog = new JDialog();
     int number = 0;
     JLabel message = new JLabel();
@@ -32,7 +35,13 @@ public class GameInt implements Runnable, ActionListener {
     private DataOutputStream out;
     private DataInputStream in;
 
-    public GameInt() {
+    public GameInt(String mca, int mcp, String tcpa, int tcpp) {
+        
+        mcAddress = mca;
+        mcPort = mcp;
+        tcpAddress = tcpa;
+        tcpPort = tcpp;
+        
         dialog.setLayout(new GridLayout(4, 1));
         pos0.addActionListener(this);
         pos1.addActionListener(this);
@@ -100,13 +109,12 @@ public class GameInt implements Runnable, ActionListener {
                 s.joinGroup(group);
 
                 byte[] buffer = new byte[1000];
-                //for(int i=0; i< 3; i++) {
-                //System.out.println("Waiting for messages");
+
                 DatagramPacket messageIn
                         = new DatagramPacket(buffer, buffer.length);
 
                 stcp = new Socket("localhost", serverPort);
-                //   s = new Socket("127.0.0.1", serverPort);    
+
                 in = new DataInputStream(stcp.getInputStream());
                 this.out = new DataOutputStream(stcp.getOutputStream());
 
@@ -114,9 +122,6 @@ public class GameInt implements Runnable, ActionListener {
 
                 while (!juegoTerminado) {
                     s.receive(messageIn);
-                    //System.out.println("Fecha actualizada: " + new String(messageIn.getData())+ " de: "+ messageIn.getAddress());
-                    //}
-                    //System.out.println("Tablero actual: ");
 
                     posiciones[prevPos].setText("(   )");
 
@@ -131,7 +136,6 @@ public class GameInt implements Runnable, ActionListener {
                             if (m[i] == 1) {
                                 prevPos = i;
                                 posiciones[i].setText("ʕ•.•ʔ");
-                                //message.setText(messageStr + " " + i + "");
                             }
                         }
                     }
@@ -368,6 +372,56 @@ public class GameInt implements Runnable, ActionListener {
     }
 
     public static void main(String args[]) {
-        GameInt ean = new GameInt();
+
+        String mca = null;
+        int mcp = 0;
+        String tcpa = null;
+        int tcpp = 0;
+        
+        System.out.println("Escribe tu nombre para jugar:");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String nombreJugador = null;
+        try {
+            nombreJugador = reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Socket s = null;
+        try {
+            int serverPort = 2806;
+
+            s = new Socket("localhost", serverPort);
+            DataInputStream in = new DataInputStream(s.getInputStream());
+            DataOutputStream out = new DataOutputStream(s.getOutputStream());
+            out.writeUTF(nombreJugador);
+
+            String data = in.readUTF();
+            //System.out.println("Received: " + data);
+
+            String strArray[] = data.split("-");
+            
+            mca = strArray[0];
+            mcp = Integer.parseInt(strArray[1]);
+            tcpa = strArray[2];
+            tcpp = Integer.parseInt(strArray[3]);
+            
+        } catch (UnknownHostException e) {
+            System.out.println("Sock:" + e.getMessage());
+        } catch (EOFException e) {
+            System.out.println("EOF:" + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("IO:" + e.getMessage());
+        } finally {
+            if (s != null) {
+                try {
+                    s.close();
+                } catch (IOException e) {
+                    System.out.println("close:" + e.getMessage());
+                }
+            }
+        }
+        
+        GameInt ean = new GameInt(mca, mcp, tcpa, tcpp);
     }
 }
