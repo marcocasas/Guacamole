@@ -49,11 +49,20 @@ public class Registro extends Thread{
             
             this.j = sj.buscaJugador(nombreJugador);
             
-            if(this.j != null) {
-                sj.nuevoJugador(this.j);
-            } else {
+//            if(this.j != null) {
+//                sj.nuevoJugador(this.j);
+//            } else {
+//                this.j = new Jugador(sj.getNumeroJugadores(), nombreJugador);
+//                sj.nuevoJugador(this.j);
+//            }
+
+            if (this.j == null) {
+                System.out.println("Nuevo Jugador");
                 this.j = new Jugador(sj.getNumeroJugadores(), nombreJugador);
                 sj.nuevoJugador(this.j);
+            } else {
+                System.out.println("Bienvenido de nuevo:");
+                System.out.println(j.getNombre());
             }
             
             jugadorRegistrado = nombreJugador;

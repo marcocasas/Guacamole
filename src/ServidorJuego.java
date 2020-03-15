@@ -87,6 +87,7 @@ public class ServidorJuego {
         
         while(!encontrado && i < numeroJugadores && players[i] != null) {
             if (players[i].getNombre().equals(nombre)){
+                j = players[i];
                 encontrado = true;
             }
             i++;
