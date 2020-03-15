@@ -20,6 +20,7 @@ public class ServidorJuego {
     int posicionTopo;
     int numeroJugadores;
     int puntosParaGanar;
+    int segundosEntreTopo;
     boolean puntoDado;
     
     public ServidorJuego() {
@@ -27,6 +28,7 @@ public class ServidorJuego {
         players = new Jugador[10];
         puntoDado = false;
         puntosParaGanar = 5;
+        segundosEntreTopo = 3000;
     }
 
     public void setPosicionTopo(int i) {
@@ -35,6 +37,10 @@ public class ServidorJuego {
     
     public void setPuntoDado(boolean b) {
         puntoDado = b;
+    }
+    
+    public int getSegundosEntreTopo() {
+        return segundosEntreTopo;
     }
     
     public int getNumeroJugadores() {
@@ -74,6 +80,21 @@ public class ServidorJuego {
         }
         return r;
     }
+    
+    public String obtenerGanador() {
+        StringBuilder resp = new StringBuilder();
+        resp.append("¡Ganó el Jugador ");
+        int i = 0;
+        
+        while(i < numeroJugadores && players[i] != null) {
+            if(players[i].getPuntos() == puntosParaGanar) {
+                resp.append(i);
+            }
+            i++;
+        }
+        resp.append("!");
+        return resp.toString();
+    }
 
     public String muestraTablero() {
         StringBuilder sb = new StringBuilder();
@@ -81,7 +102,7 @@ public class ServidorJuego {
         int i = 0;
         while(i < numeroJugadores && players[i] != null) {
             sb.append(players[i].toString());
-            sb.append("\n");
+            sb.append("-");
             i++;
         }
         
@@ -117,124 +138,5 @@ public class ServidorJuego {
             System.out.println("Listen :" + e.getMessage());
         }
 
-    }
-}
-
-class Tablero extends Thread {
-
-    ServidorJuego sj;
-
-    MulticastSocket s = null; // Socket para Multicast.
-    int serverPort = 7896; // Puerto Multicast
-
-    byte[] posiciones = {0, 0, 0, 0, 0, 0, 0, 0, 0}; // Tablero actual
-    int pos = 0; // Posicion en la que saldra el topo. Será el indice del arreglo
-    int prevPos; // Posicion previa en la que estaba el topo.
-
-    DataInputStream in;
-    DataOutputStream out;
-    Socket clientSocket;
-
-    public Tablero(ServidorJuego servJuego) {
-        sj = servJuego;
-    }
-
-    @Override
-    public void run() {
-
-        MulticastSocket s = null;
-
-        try {
-            InetAddress group = InetAddress.getByName("228.28.6.13"); // destination multicast group 
-            s = new MulticastSocket(6789); // Puerto en el que me estoy uniendo al grupo.
-            s.joinGroup(group);
-
-            while (true) {
-                prevPos = pos;
-                pos = new Random().nextInt(9);
-                sj.setPosicionTopo(pos);
-                sj.setPuntoDado(false);
-                System.out.println("Topo en " + pos);
-                posiciones[prevPos] = 0;
-                posiciones[pos] = 1;
-                DatagramPacket messageOut
-                        = new DatagramPacket(posiciones, posiciones.length, group, 6789);
-                s.send(messageOut);
-
-                sj.setPosicionTopo(pos);
-
-                Thread.sleep(5000);
-                System.out.println("Va de nuez");
-            }
-        } catch (SocketException e) {
-            System.out.println("Socket: " + e.getMessage());
-        } catch (IOException e) {
-            System.out.println("IO: " + e.getMessage());
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Tablero.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (s != null) {
-                s.close();
-            }
-        }
-    }
-}
-
-class Connection extends Thread {
-
-    DataInputStream in;
-    DataOutputStream out;
-    Socket clientSocket;
-    
-    ServidorJuego s;
-    Jugador player;
-    
-    public Connection(Socket aClientSocket, ServidorJuego sj, Jugador j) {
-        s = sj;
-        player = j;
-        try {
-            clientSocket = aClientSocket;
-            in = new DataInputStream(clientSocket.getInputStream());
-            out = new DataOutputStream(clientSocket.getOutputStream());
-        } catch (IOException e) {
-            System.out.println("Connection:" + e.getMessage());
-        }
-    }
-
-    @Override
-    public void run() {
-        try {			                 // an echo server
-            String data = "START";
-            while(!data.equals("EXT")) {
-                data = in.readUTF();
-                
-                if(!s.getPuntoDado() && Integer.parseInt(data) == s.getPosicionTopo()) {
-                    s.setPuntoDado(true);
-                    player.sumaPuntos();
-                    //out.writeUTF("Punto!");
-                } 
-                //else {
-                    //out.writeUTF("Be faster!");
-                //}
-                
-                out.writeUTF(s.muestraTablero());
-                
-                System.out.println("Message received from: " + clientSocket.getRemoteSocketAddress());
-                System.out.println("Un jugador tiró: " + data);
-            }
-            
-            // Sacar al jugador del servidor.
-            
-        } catch (EOFException e) {
-            System.out.println("EOF:" + e.getMessage());
-        } catch (IOException e) {
-            System.out.println("IO:" + e.getMessage());
-        } finally {
-            try {
-                clientSocket.close();
-            } catch (IOException e) {
-                System.out.println(e);
-            }
-        }
     }
 }

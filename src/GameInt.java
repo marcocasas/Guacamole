@@ -47,10 +47,12 @@ public class GameInt implements Runnable, ActionListener {
         JPanel btnPanel = new JPanel();
         JPanel btnPanel2 = new JPanel();
         JPanel btnPanel3 = new JPanel();
+        JPanel msgPanel = new JPanel();
 
         btnPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
         btnPanel2.setLayout(new FlowLayout(FlowLayout.CENTER));
         btnPanel3.setLayout(new FlowLayout(FlowLayout.CENTER));
+        msgPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
 
         btnPanel.add(pos0);
         btnPanel.add(pos1);
@@ -62,12 +64,15 @@ public class GameInt implements Runnable, ActionListener {
         btnPanel3.add(pos7);
         btnPanel3.add(pos8);
 
-        dialog.add(message, "Center");
+        msgPanel.add(message);
+
+        //dialog.add(message, "Center");
         dialog.add(btnPanel, "Center");
         dialog.add(btnPanel2, "Center");//
         dialog.add(btnPanel3, "Center");//
+        dialog.add(msgPanel, "Center");
 
-        dialog.setPreferredSize(new Dimension(300, 300));
+        dialog.setPreferredSize(new Dimension(400, 400));
 
         dialog.pack();
 
@@ -79,7 +84,6 @@ public class GameInt implements Runnable, ActionListener {
 
     @Override
     public void run() {
-        int puntos = 0;
         int prevPos = 0;
 
         int serverPort = 7896; //puerto servidor TCP
@@ -106,7 +110,9 @@ public class GameInt implements Runnable, ActionListener {
                 in = new DataInputStream(stcp.getInputStream());
                 this.out = new DataOutputStream(stcp.getOutputStream());
 
-                while (puntos < 50) {
+                boolean juegoTerminado = false;
+
+                while (!juegoTerminado) {
                     s.receive(messageIn);
                     //System.out.println("Fecha actualizada: " + new String(messageIn.getData())+ " de: "+ messageIn.getAddress());
                     //}
@@ -116,18 +122,22 @@ public class GameInt implements Runnable, ActionListener {
 
                     byte[] m = messageIn.getData();
 
-                    for (int i = 0; i < 9; i++) {
-                        if (m[i] == 1) {
-                            prevPos = i;
-                            posiciones[i].setText("ʕ•.•ʔ");
-                            message.setText(messageStr + " " + i + "");
+                    if (m[9] == 1) {
+                        juegoTerminado = true;
+                        s.receive(messageIn);
+                        message.setText(new String(messageIn.getData()));
+                    } else {
+                        for (int i = 0; i < 9; i++) {
+                            if (m[i] == 1) {
+                                prevPos = i;
+                                posiciones[i].setText("ʕ•.•ʔ");
+                                //message.setText(messageStr + " " + i + "");
+                            }
                         }
                     }
-
-                    //System.out.println("\n");
-                    puntos++;
-                    //
                 }
+
+                System.out.println("Juego terminado");
 
                 s.leaveGroup(group);
             } catch (SocketException e) {
@@ -160,6 +170,17 @@ public class GameInt implements Runnable, ActionListener {
                 String data = in.readUTF();
                 System.out.println("Received:");
                 System.out.println(data);
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("<html>");
+                String str[] = data.split("-");
+                for (String s : str) {
+                    sb.append(s);
+                    sb.append("<br>");
+                }
+                sb.append("</html>");
+                System.out.println(sb.toString());
+                message.setText(sb.toString());
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -171,6 +192,17 @@ public class GameInt implements Runnable, ActionListener {
                 String data = in.readUTF();
                 System.out.println("Received:");
                 System.out.println(data);
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("<html>");
+                String str[] = data.split("-");
+                for (String s : str) {
+                    sb.append(s);
+                    sb.append("<br>");
+                }
+                sb.append("</html>");
+                System.out.println(sb.toString());
+                message.setText(sb.toString());
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -182,6 +214,17 @@ public class GameInt implements Runnable, ActionListener {
                 String data = in.readUTF();
                 System.out.println("Received:");
                 System.out.println(data);
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("<html>");
+                String str[] = data.split("-");
+                for (String s : str) {
+                    sb.append(s);
+                    sb.append("<br>");
+                }
+                sb.append("</html>");
+                System.out.println(sb.toString());
+                message.setText(sb.toString());
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -193,6 +236,17 @@ public class GameInt implements Runnable, ActionListener {
                 String data = in.readUTF();
                 System.out.println("Received:");
                 System.out.println(data);
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("<html>");
+                String str[] = data.split("-");
+                for (String s : str) {
+                    sb.append(s);
+                    sb.append("<br>");
+                }
+                sb.append("</html>");
+                System.out.println(sb.toString());
+                message.setText(sb.toString());
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -204,6 +258,17 @@ public class GameInt implements Runnable, ActionListener {
                 String data = in.readUTF();
                 System.out.println("Received:");
                 System.out.println(data);
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("<html>");
+                String str[] = data.split("-");
+                for (String s : str) {
+                    sb.append(s);
+                    sb.append("<br>");
+                }
+                sb.append("</html>");
+                System.out.println(sb.toString());
+                message.setText(sb.toString());
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -215,6 +280,17 @@ public class GameInt implements Runnable, ActionListener {
                 String data = in.readUTF();
                 System.out.println("Received:");
                 System.out.println(data);
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("<html>");
+                String str[] = data.split("-");
+                for (String s : str) {
+                    sb.append(s);
+                    sb.append("<br>");
+                }
+                sb.append("</html>");
+                System.out.println(sb.toString());
+                message.setText(sb.toString());
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -226,6 +302,17 @@ public class GameInt implements Runnable, ActionListener {
                 String data = in.readUTF();
                 System.out.println("Received:");
                 System.out.println(data);
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("<html>");
+                String str[] = data.split("-");
+                for (String s : str) {
+                    sb.append(s);
+                    sb.append("<br>");
+                }
+                sb.append("</html>");
+                System.out.println(sb.toString());
+                message.setText(sb.toString());
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -237,6 +324,17 @@ public class GameInt implements Runnable, ActionListener {
                 String data = in.readUTF();
                 System.out.println("Received:");
                 System.out.println(data);
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("<html>");
+                String str[] = data.split("-");
+                for (String s : str) {
+                    sb.append(s);
+                    sb.append("<br>");
+                }
+                sb.append("</html>");
+                System.out.println(sb.toString());
+                message.setText(sb.toString());
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -248,6 +346,17 @@ public class GameInt implements Runnable, ActionListener {
                 String data = in.readUTF();
                 System.out.println("Received:");
                 System.out.println(data);
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("<html>");
+                String str[] = data.split("-");
+                for (String s : str) {
+                    sb.append(s);
+                    sb.append("<br>");
+                }
+                sb.append("</html>");
+                System.out.println(sb.toString());
+                message.setText(sb.toString());
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }
