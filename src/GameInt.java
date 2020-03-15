@@ -30,7 +30,8 @@ public class GameInt implements Runnable, ActionListener {
     boolean runProcess = true;
 
     private DataOutputStream out;
-    
+    private DataInputStream in;
+
     public GameInt() {
         dialog.setLayout(new GridLayout(4, 1));
         pos0.addActionListener(this);
@@ -102,9 +103,9 @@ public class GameInt implements Runnable, ActionListener {
 
                 stcp = new Socket("localhost", serverPort);
                 //   s = new Socket("127.0.0.1", serverPort);    
-                DataInputStream in = new DataInputStream(stcp.getInputStream());
+                in = new DataInputStream(stcp.getInputStream());
                 this.out = new DataOutputStream(stcp.getOutputStream());
-                
+
                 while (puntos < 50) {
                     s.receive(messageIn);
                     //System.out.println("Fecha actualizada: " + new String(messageIn.getData())+ " de: "+ messageIn.getAddress());
@@ -124,10 +125,6 @@ public class GameInt implements Runnable, ActionListener {
                     }
 
                     //System.out.println("\n");
-                    
-                    String data = in.readUTF();
-                    System.out.println("Received: " + data);
-            
                     puntos++;
                     //
                 }
@@ -158,72 +155,99 @@ public class GameInt implements Runnable, ActionListener {
     public void actionPerformed(ActionEvent e) {
         JRadioButton pressed = (JRadioButton) e.getSource();
         if (pressed == pos0) {
-            try { 
+            try {
                 out.writeUTF("0");
+                String data = in.readUTF();
+                System.out.println("Received:");
+                System.out.println(data);
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }
             System.out.println("0");
             pos0.setSelected(false);
         } else if (pressed == pos1) {
-             try { 
+            try {
                 out.writeUTF("1");
+                String data = in.readUTF();
+                System.out.println("Received:");
+                System.out.println(data);
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }
             System.out.println("1");
             pos1.setSelected(false);
         } else if (pressed == pos2) {
-            try { 
+            try {
                 out.writeUTF("2");
+                String data = in.readUTF();
+                System.out.println("Received:");
+                System.out.println(data);
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }
             System.out.println("2");
             pos2.setSelected(false);
         } else if (pressed == pos3) {
-            try { 
+            try {
                 out.writeUTF("3");
+                String data = in.readUTF();
+                System.out.println("Received:");
+                System.out.println(data);
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }
             System.out.println("3");
             pos3.setSelected(false);
         } else if (pressed == pos4) {
-            try { 
+            try {
                 out.writeUTF("4");
+                String data = in.readUTF();
+                System.out.println("Received:");
+                System.out.println(data);
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }
             System.out.println("4");
             pos4.setSelected(false);
         } else if (pressed == pos5) {
-            try { 
+            try {
                 out.writeUTF("5");
+                String data = in.readUTF();
+                System.out.println("Received:");
+                System.out.println(data);
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }
             System.out.println("5");
             pos5.setSelected(false);
         } else if (pressed == pos6) {
-             try { 
+            try {
                 out.writeUTF("6");
+                String data = in.readUTF();
+                System.out.println("Received:");
+                System.out.println(data);
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }
             System.out.println("6");
             pos6.setSelected(false);
         } else if (pressed == pos7) {
-            try { 
+            try {
                 out.writeUTF("7");
+                String data = in.readUTF();
+                System.out.println("Received:");
+                System.out.println(data);
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }
             System.out.println("7");
             pos7.setSelected(false);
         } else if (pressed == pos8) {
-            try { 
+            try {
                 out.writeUTF("8");
+                String data = in.readUTF();
+                System.out.println("Received:");
+                System.out.println(data);
             } catch (IOException ex) {
                 Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
             }

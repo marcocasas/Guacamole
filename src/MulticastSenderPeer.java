@@ -41,7 +41,7 @@ public class MulticastSenderPeer {
             while (true) {
                 System.out.println("Waiting for players...");
                 Socket clientSocket = listenSocket.accept();  // Listens for a connection to be made to this socket and accepts it. The method blocks until a connection is made. 
-                Connection c = new Connection(clientSocket, new ServidorJuego()); // ESTA MAL BORRAAAAAR
+                Connection c = new Connection(clientSocket, new ServidorJuego(), new Jugador(999)); // ESTA MAL BORRAAAAAR
                 c.start();
                 //}
 

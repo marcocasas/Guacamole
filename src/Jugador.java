@@ -19,9 +19,19 @@ public class Jugador {
     
     public void sumaPuntos() {
         puntos++;
+        System.out.println("¡Punto para ti!");
+    }
+    
+    public int getPuntos() {
+        return puntos;
     }
     
     public int getId() {
         return id;
+    }
+    
+    @Override
+    public String toString() {
+        return "Jugador " + id + " con " + puntos + " puntos";
     }
 }

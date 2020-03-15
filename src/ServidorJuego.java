@@ -19,18 +19,34 @@ public class ServidorJuego {
     Jugador players[]; // Arreglo de jugadores
     int posicionTopo;
     int numeroJugadores;
+    int puntosParaGanar;
+    boolean puntoDado;
     
     public ServidorJuego() {
         numeroJugadores = 0;
         players = new Jugador[10];
+        puntoDado = false;
+        puntosParaGanar = 5;
     }
 
     public void setPosicionTopo(int i) {
         posicionTopo = i;
     }
     
+    public void setPuntoDado(boolean b) {
+        puntoDado = b;
+    }
+    
     public int getNumeroJugadores() {
         return numeroJugadores;
+    }
+    
+    public boolean getPuntoDado() {
+        return puntoDado;
+    }
+    
+    public int getPosicionTopo() {
+        return posicionTopo;
     }
     
     public void nuevoJugador(Jugador j) {
@@ -46,7 +62,32 @@ public class ServidorJuego {
             }
         }
     }
+    
+    public boolean alguienYaGano() {
+        boolean r = false;
+        int i = 0;
+        while(!r && i < numeroJugadores && players[i] != null) {
+            if (players[i].getPuntos() == puntosParaGanar){
+                r = true;
+            }
+            i++;
+        }
+        return r;
+    }
 
+    public String muestraTablero() {
+        StringBuilder sb = new StringBuilder();
+        
+        int i = 0;
+        while(i < numeroJugadores && players[i] != null) {
+            sb.append(players[i].toString());
+            sb.append("\n");
+            i++;
+        }
+        
+        return sb.toString();
+    }
+    
     public static void main(String args[]) throws InterruptedException {
 
         ServidorJuego servJuego = new ServidorJuego();
@@ -60,9 +101,13 @@ public class ServidorJuego {
             while (true) {
                 System.out.println("Waiting for players...");
                 Socket clientSocket = listenSocket.accept();  // Listens for a connection to be made to this socket and accepts it. The method blocks until a connection is made. 
-                Connection c = new Connection(clientSocket, servJuego);
                 
-                servJuego.nuevoJugador(new Jugador(servJuego.getNumeroJugadores()));
+                //Instanciamos nuevo jugador
+                Jugador j = new Jugador(servJuego.getNumeroJugadores());
+                
+                Connection c = new Connection(clientSocket, servJuego, j);
+                
+                servJuego.nuevoJugador(j);
                 servJuego.obtenerListaJugadores(); // Prueba para ver que se añagen jugadores.
                 
                 c.start();
@@ -90,8 +135,8 @@ class Tablero extends Thread {
     DataOutputStream out;
     Socket clientSocket;
 
-    public Tablero(ServidorJuego s) {
-        sj = s;
+    public Tablero(ServidorJuego servJuego) {
+        sj = servJuego;
     }
 
     @Override
@@ -107,6 +152,8 @@ class Tablero extends Thread {
             while (true) {
                 prevPos = pos;
                 pos = new Random().nextInt(9);
+                sj.setPosicionTopo(pos);
+                sj.setPuntoDado(false);
                 System.out.println("Topo en " + pos);
                 posiciones[prevPos] = 0;
                 posiciones[pos] = 1;
@@ -116,7 +163,7 @@ class Tablero extends Thread {
 
                 sj.setPosicionTopo(pos);
 
-                Thread.sleep(3500);
+                Thread.sleep(5000);
                 System.out.println("Va de nuez");
             }
         } catch (SocketException e) {
@@ -138,9 +185,13 @@ class Connection extends Thread {
     DataInputStream in;
     DataOutputStream out;
     Socket clientSocket;
-
-    public Connection(Socket aClientSocket, ServidorJuego sj) {
-
+    
+    ServidorJuego s;
+    Jugador player;
+    
+    public Connection(Socket aClientSocket, ServidorJuego sj, Jugador j) {
+        s = sj;
+        player = j;
         try {
             clientSocket = aClientSocket;
             in = new DataInputStream(clientSocket.getInputStream());
@@ -156,9 +207,20 @@ class Connection extends Thread {
             String data = "START";
             while(!data.equals("EXT")) {
                 data = in.readUTF();
+                
+                if(!s.getPuntoDado() && Integer.parseInt(data) == s.getPosicionTopo()) {
+                    s.setPuntoDado(true);
+                    player.sumaPuntos();
+                    //out.writeUTF("Punto!");
+                } 
+                //else {
+                    //out.writeUTF("Be faster!");
+                //}
+                
+                out.writeUTF(s.muestraTablero());
+                
                 System.out.println("Message received from: " + clientSocket.getRemoteSocketAddress());
                 System.out.println("Un jugador tiró: " + data);
-                out.writeUTF(data);
             }
             
             // Sacar al jugador del servidor.
