@@ -125,6 +125,34 @@ public class ServidorJuego {
 
     public void reiniciaTablero() {
         int i = 0;
+        int jugadoresActivos = 0;
+        
+        Jugador aux;
+        
+        while(i < players.length) {
+            if(players[i] != null) {
+                aux = players[i];
+                players[i] = null;
+                if (aux.estaActivo()) {
+                    aux.reseteaPuntuacion();
+                    players[jugadoresActivos] = aux;
+                    jugadoresActivos++;
+                }
+            }
+            i++;
+        }
+        
+//        for (Jugador player : players) {
+//            if (player != null) {
+//                if (player.estaActivo()) {
+//                    players[jugadoresActivos] = player;
+//                    jugadoresActivos++;
+//                } else {
+//                    players[jugadoresActivos] = null;
+//                }
+//            }
+//        }
+
         while (i < numeroJugadores && players[i] != null) {
             players[i].reseteaPuntuacion();
             i++;

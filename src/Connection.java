@@ -10,7 +10,6 @@ import java.net.Socket;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author marco
@@ -20,10 +19,10 @@ public class Connection extends Thread {
     DataInputStream in;
     DataOutputStream out;
     Socket clientSocket;
-    
+
     ServidorJuego s;
     Jugador player;
-    
+
     public Connection(Socket aClientSocket, ServidorJuego sj, Jugador j) {
         s = sj;
         player = j;
@@ -40,26 +39,29 @@ public class Connection extends Thread {
     public void run() {
         try {			                 // an echo server
             String data = "START";
-            while(!data.equals("EXT")) {
+            boolean salir = false;
+            while (!salir) {
                 data = in.readUTF();
-                
-                if(!s.getPuntoDado() && Integer.parseInt(data) == s.getPosicionTopo()) {
-                    s.setPuntoDado(true);
-                    player.sumaPuntos();
-                    //out.writeUTF("Punto!");
-                } 
-                //else {
-                    //out.writeUTF("Be faster!");
-                //}
-                
-                out.writeUTF(s.muestraTablero());
-                
-                System.out.println("Message received from: " + clientSocket.getRemoteSocketAddress());
-                System.out.println("Un jugador tiró: " + data);
+
+                if (data.equals("EXT")) {
+                    salir = true;
+                    player.marcarJugadorInactivo();
+                    System.out.println(player.getNombre() + " ahora está " + player.estaActivo());
+                } else {
+                    if (!s.getPuntoDado() && Integer.parseInt(data) == s.getPosicionTopo()) {
+                        s.setPuntoDado(true);
+                        player.sumaPuntos();
+                    }
+
+                    out.writeUTF(s.muestraTablero());
+
+                    System.out.println("Message received from: " + clientSocket.getRemoteSocketAddress());
+                    System.out.println("Un jugador tiró: " + data);
+                }
+
             }
-            
+
             // Sacar al jugador del servidor.
-            
         } catch (EOFException e) {
             System.out.println("EOF:" + e.getMessage());
         } catch (IOException e) {

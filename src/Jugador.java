@@ -51,6 +51,18 @@ public class Jugador {
         return nombre + " (Jugador " + id + ") con " + puntos + " pts";
     }
     
+    public boolean estaActivo() {
+        return active;
+    }
+    
+    public void marcarJugadorInactivo() {
+        this.active = false;
+    }
+    
+    public void marcarJugadorActivo() {
+        this.active = true;
+    }
+    
     public void reseteaPuntuacion() {
         this.puntos = 0;
     }

@@ -8,6 +8,7 @@ import java.io.*;
 import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JButton;
 
 import javax.swing.JRadioButton;
 import javax.swing.JDialog;
@@ -30,6 +31,8 @@ public class GameInt implements Runnable, ActionListener {
     JRadioButton pos4 = new JRadioButton("(   )"), pos5 = new JRadioButton("(   )");
     JRadioButton pos6 = new JRadioButton("(   )"), pos7 = new JRadioButton("(   )");
     JRadioButton pos8 = new JRadioButton("(   )");
+
+    JButton getOut = new JButton("Salir");
 
     String messageStr = "Topo en la posicion: ";
     boolean runProcess = true;
@@ -55,6 +58,21 @@ public class GameInt implements Runnable, ActionListener {
         pos7.addActionListener(this);
         pos8.addActionListener(this);
 
+        getOut.addActionListener(
+                new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    //System.out.println("SALIR!!!");
+                    out.writeUTF("EXT");
+                    salir = true;
+                } catch (IOException ex) {
+                    Logger.getLogger(GameInt.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        );
+
         JPanel btnPanel = new JPanel();
         JPanel btnPanel2 = new JPanel();
         JPanel btnPanel3 = new JPanel();
@@ -76,6 +94,7 @@ public class GameInt implements Runnable, ActionListener {
         btnPanel3.add(pos8);
 
         msgPanel.add(message);
+        msgPanel.add(getOut);
 
         //dialog.add(message, "Center");
         dialog.add(btnPanel, "Center");
@@ -125,7 +144,7 @@ public class GameInt implements Runnable, ActionListener {
                     message.setText("¡Un nuevo juego ha comenzado!");
                     boolean juegoTerminado = false;
 
-                    while (!juegoTerminado) {
+                    while (!salir && !juegoTerminado) {
                         s.receive(messageIn);
 
                         posiciones[prevPos].setText("(   )");
@@ -152,6 +171,7 @@ public class GameInt implements Runnable, ActionListener {
                     }
 
                     System.out.println("Juego terminado");
+                    System.out.println("Usuario pide salir...");
                 }
 
                 s.leaveGroup(group);
@@ -170,10 +190,13 @@ public class GameInt implements Runnable, ActionListener {
                         System.out.println("close:" + e.getMessage());
                     }
                 }
+                
+                runProcess = false;
             }
         }
-
-        runProcess = false;
+        
+        System.exit(0);
+        
     }
 
     @Override
@@ -408,7 +431,6 @@ public class GameInt implements Runnable, ActionListener {
             out.writeUTF(nombreJugador);
 
             String data = in.readUTF();
-            //System.out.println("Received: " + data);
 
             String strArray[] = data.split("-");
 
