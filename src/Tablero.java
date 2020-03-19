@@ -56,7 +56,10 @@ public class Tablero extends Thread {
                     pos = new Random().nextInt(9);
                     sj.setPosicionTopo(pos);
                     sj.setPuntoDado(false);
-                    System.out.println("Topo en " + pos);
+                    
+                    // Mensaje para saber donde esta el topo.
+                    //System.out.println("Topo en " + pos);
+                    
                     posiciones[prevPos] = 0;
                     posiciones[pos] = 1;
                     DatagramPacket messageOut
@@ -66,7 +69,9 @@ public class Tablero extends Thread {
                     sj.setPosicionTopo(pos);
 
                     Thread.sleep(sj.getSegundosEntreTopo());
-                    System.out.println("Va de nuez");
+                    
+                    // Mensaje para notificar que volvemos a empezar el ciclo.
+                    //System.out.println("Va de nuez");
                 }
 
                 posiciones[prevPos] = 0;

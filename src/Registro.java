@@ -43,7 +43,7 @@ public class Registro extends Thread {
     @Override
     public void run() {
         try {
-            while (true) {
+//            while (true) {
                 String nombreJugador;
                 nombreJugador = in.readUTF();
 
@@ -63,12 +63,11 @@ public class Registro extends Thread {
                 jugadorRegistrado = nombreJugador;
                 out.writeUTF("228.28.6.13-6789-127.0.0.1-7896");
                 System.out.println("Jugador registrado");
-                sj.obtenerListaJugadores();
-
-            }
+                sj.obtenerListaJugadores();              
+//            }
 
         } catch (EOFException e) {
-            System.out.println("EOF:" + e.getMessage());
+            System.out.println("REGISTRO EOF:" + e.getMessage());
         } catch (IOException e) {
             System.out.println("IO:" + e.getMessage());
         } finally {
