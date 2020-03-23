@@ -9,7 +9,6 @@ import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
-
 import javax.swing.JRadioButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;

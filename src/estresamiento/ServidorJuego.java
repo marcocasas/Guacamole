@@ -3,6 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+package estresamiento;
 
 import java.io.*;
 import java.net.*;
@@ -21,15 +22,108 @@ public class ServidorJuego {
     int puntosParaGanar;
     int segundosEntreTopo;
     boolean puntoDado;
-
-    public ServidorJuego() {
-        numeroJugadores = 0;
-        players = new Jugador[10];
-        puntoDado = false;
-        puntosParaGanar = 5;
-        segundosEntreTopo = 3000;
+    final int maxJugadores = 10000000;
+    long tiempos;
+    int cuantos;
+    double [] tes;
+    double [] promedios;
+    double [] desviaciones;
+    double [] cuantosJugaron;
+    int numExp;
+    public boolean ganoAlguien;
+    int registrosExtra;
+    public ServidorJuego() 
+    {
+        promedios = new double[10]; //Vamos a repetir cada experimento 10 veces
+        desviaciones = new double[10]; 
+        cuantosJugaron = new double[10];
+        numExp = 0;
+        registrosExtra = 0;
+        reiniciaServidor();
     }
+    public int getRegistrosExtra()
+    {
+        return registrosExtra;
+    }
+    public void registroExtra()
+    {
+        registrosExtra++;
+    }
+    public void reportaExperimento()
+    {
+        long p = 0, d = 0, j = 0;
+        for(int i = 0; i < numExp; i++)
+        {
+            p+= promedios[i];
+            d += desviaciones[i];
+            j += cuantosJugaron[i];
+        }
+        System.out.println("Promedio: "+ p*(1.0)/(numExp*1.0));
+        System.out.println("Desv. Est.: "+ d*(1.0)/(1.0*numExp));
+        System.out.println("Jugaron: "+ j*1.0/(1.0*numExp));
+    }
+    public void acumulaPromediosYDesviaciones()
+    {
+        promedios[numExp] = promedio();
+        desviaciones[numExp] = (long) stdDev();
+        cuantosJugaron[numExp] = cuantos;
+        numExp++;
+    }
+    public void reiniciaManteniendoJugadores()
+    {
+        try {
+            tiempos = 0;
+            cuantos = 0;
+            tes = new double[maxJugadores];
+            ganoAlguien = false;
+            registrosExtra = 0;
+            Thread.sleep(1000);
+            System.out.println("\nServidor reiniciado y listo para comenzar.");
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ServidorJuego.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    public void reiniciaServidor()
+    {
+        try {
+            numeroJugadores = 0;
+            players = new Jugador[maxJugadores];
+            puntoDado = false;
+            puntosParaGanar = 5;
+            segundosEntreTopo = 200;
+            tiempos = 0;
+            cuantos = 0;
+            tes = new double[maxJugadores];
+            ganoAlguien = false;
+            Thread.sleep(1000);
+            System.out.println("\nServidor reiniciado y listo para comenzar.");
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ServidorJuego.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    public double stdDev()
+    {
+        double sum = 0.0;
+        double num = 0.0;
 
+        for (int i=0; i < cuantos; i++)
+        sum+=tes[i];
+
+        double mean = sum/cuantos;
+        for (int i=0; i <cuantos; i++)
+        num+=Math.pow((tes[i] - mean),2);
+        return Math.sqrt(num/cuantos);
+    }
+    public double promedio()
+    {
+        return tiempos/cuantos*(1.0);
+    }
+    public void acumula(long tiempo)
+    {
+        tes[cuantos] = tiempo;
+        tiempos += tiempo;
+        cuantos++;
+    }
     public void setPosicionTopo(int i) {
         posicionTopo = i;
     }
@@ -96,6 +190,7 @@ public class ServidorJuego {
     }
 
     public String obtenerGanador() {
+        ganoAlguien = true;
         StringBuilder resp = new StringBuilder();
         resp.append("¡Ganó ");
         int i = 0;
@@ -109,7 +204,10 @@ public class ServidorJuego {
         resp.append("!");
         return resp.toString();
     }
-
+    public int getCuantos()
+    {
+        return cuantos;
+    }
     public String muestraTablero() {
         StringBuilder sb = new StringBuilder();
 
@@ -147,29 +245,6 @@ public class ServidorJuego {
             i++;
         }
     }
-    
-        public void limpiaListaJugadores() {
-        int i = 0;
-        int jugadoresActivos = 0;
-        
-        Jugador aux;
-        
-        while(i < players.length) {
-            if(players[i] != null) {
-                aux = players[i];
-                players[i] = null;
-                players[jugadoresActivos] = aux;
-                players[jugadoresActivos].setId(jugadoresActivos);
-                jugadoresActivos++;
-            }
-            i++;
-        }
-
-        while (i < numeroJugadores && players[i] != null) {
-            players[i].reseteaPuntuacion();
-            i++;
-        }
-    }
 
     public static void main(String args[]) throws InterruptedException {
 
@@ -184,7 +259,7 @@ public class ServidorJuego {
             ServerSocket listenSocketRegister = new ServerSocket(serverPortRegister);
 
             while (true) {
-                System.out.println("Waiting for players...");
+                //System.out.println("Waiting for players...");
 
                 Socket registerSocket = listenSocketRegister.accept();
                 Registro reg = new Registro(registerSocket, servJuego);
@@ -200,7 +275,7 @@ public class ServidorJuego {
                 Connection c = new Connection(clientSocket, servJuego, j);
 
                 //servJuego.nuevoJugador(j);
-                servJuego.obtenerListaJugadores(); // Prueba para ver que se añagen jugadores.
+                //servJuego.obtenerListaJugadores(); // Prueba para ver que se añagen jugadores.
 
                 c.start();
             }

@@ -1,3 +1,4 @@
+package estresamiento;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -39,34 +40,30 @@ public class Registro extends Thread {
     public Jugador getJugadorRegistrado() {
         return j;
     }
-
     @Override
     public void run() {
         try {
-//            while (true) {
                 String nombreJugador;
                 nombreJugador = in.readUTF();
 
                 this.j = sj.buscaJugador(nombreJugador);
 
                 if (this.j == null) {
-                    System.out.println("Nuevo Jugador");
+                    //System.out.println("Nuevo Jugador");
                     this.j = new Jugador(sj.getNumeroJugadores(), nombreJugador);
                     sj.nuevoJugador(this.j);
                 } else {
-                    System.out.println("Bienvenido de nuevo:");
-                    System.out.println(j.getNombre());
+                    //System.out.println("Bienvenido de nuevo:");
+                    //System.out.println(j.getNombre());
                 }
 
                 this.j.marcarJugadorActivo();
 
-                sj.limpiaListaJugadores();
-                
                 jugadorRegistrado = nombreJugador;
                 out.writeUTF("228.28.6.13-6789-127.0.0.1-7896");
-                System.out.println("Jugador registrado");
-                sj.obtenerListaJugadores();              
-//            }
+                //System.out.println("Jugador registrado");
+                //sj.obtenerListaJugadores();     
+                //System.out.println("Juegan: " + sj.getNumeroJugadores());
 
         } catch (EOFException e) {
             System.out.println("REGISTRO EOF:" + e.getMessage());
